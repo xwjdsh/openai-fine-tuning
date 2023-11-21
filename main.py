@@ -86,6 +86,19 @@ def fine_tuning(args):
         time.sleep(1)
 
 
+def list_user_models(args):
+    client = OpenAI(api_key=args.token)
+    response = client.models.list()
+    response = [m for m in response if m.owned_by.startswith('user-')]
+    print(f'[list-user-models] response: {response}')
+
+
+def delete_user_model(args):
+    client = OpenAI(api_key=args.token)
+    response = client.models.delete(args.model)
+    print(f'[delete-user-model] response: {response}')
+
+
 parser = argparse.ArgumentParser(
     prog='python main.py', description='fine-tuning demo')
 subparser = parser.add_subparsers(required=True)
@@ -112,6 +125,16 @@ parser_fine_tuning.add_argument('--file_id', type=str,
 parser_fine_tuning.add_argument('--model', type=str,
                                 help='model (default gpt-3.5-turbo-1106)', default='gpt-3.5-turbo-1106')
 parser_fine_tuning.set_defaults(func=fine_tuning)
+
+parser_list_user_models = subparser.add_parser(
+    'list-user-models', help='list user models')
+parser_list_user_models.set_defaults(func=list_user_models)
+
+parser_delete_user_model = subparser.add_parser(
+    'delete-user-model', help='delete user model')
+parser_delete_user_model.add_argument('--model', type=str,
+                                      help='model to delete', required=True)
+parser_delete_user_model.set_defaults(func=delete_user_model)
 
 
 parser.add_argument('--token', type=str,
